@@ -5,7 +5,7 @@ const passport = require('passport')
 const path = require('path')
 
 const users = require('./routes/api/users')
-const profiles = require('./routes/api/profiles')
+const profile = require('./routes/api/profile')
 const posts = require('./routes/api/posts')
 
 const app = express()
@@ -22,11 +22,15 @@ mongoose.connect(db,{ useNewUrlParser: true })
 .then(()=> console.log('mongoDB connected'))
 .catch(err => console.log(err))
 
-app.get('/', (req, res)=> res.send('hello world'))
+// Passport middleware
+app.use(passport.initialize());
+
+// Passport Config
+require('./config/passport')(passport);
 
 // Use Routes
 app.use('/api/users', users)
-app.use('/api/profiles', profiles)
+app.use('/api/profile', profile)
 app.use('/api/posts', posts)
 
 const port = process.env.PORT || 5000
