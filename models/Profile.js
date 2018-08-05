@@ -32,7 +32,12 @@ const ProfileSchema = new Schema({
     required: true
   }
   }],
-  anime: [],
+  anime: [{
+    title: {
+    type: String,
+    required: true
+  }
+  }],
   webseries: [],
   tvseries: [],
   manga: [],
