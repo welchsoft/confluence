@@ -61,7 +61,7 @@ class CreateProfile extends Component {
     this.props.createProfile(profileData, this.props.history);
   }
 
- onChange(e) {
+  onChange(e) {
     this.setState({ [e.target.name]: e.target.value });
   }
 
@@ -136,13 +136,14 @@ class CreateProfile extends Component {
 
     return (
       <div className="create-profile">
-         <div className="container">
-           <div className="row">
-             <div className="col-md-8 m-auto">
-             <h1 className="display-4 text-center">Create Your Profile</h1>
+        <div className="container">
+          <div className="row">
+            <div className="col-md-8 m-auto">
+              <h1 className="display-4 text-center">Create Your Profile</h1>
               <p className="lead text-center">
-                Lets get some information to make your profile stand out
+                Let's get some information to make your profile stand out
               </p>
+              <small className="d-block pb-3">* = required fields</small>
               <form onSubmit={this.onSubmit}>
                 <TextFieldGroup
                   placeholder="* Profile Handle"
@@ -191,7 +192,8 @@ class CreateProfile extends Component {
                   value={this.state.skills}
                   onChange={this.onChange}
                   error={errors.skills}
-                  info="Please use comma separated values"
+                  info="Please use comma separated values (eg.
+                    HTML,CSS,JavaScript,PHP"
                 />
                 <TextFieldGroup
                   placeholder="Github Username"
@@ -230,14 +232,13 @@ class CreateProfile extends Component {
                   value="Submit"
                   className="btn btn-info btn-block mt-4"
                 />
-                </form>
-             </div>
-           </div>
-         </div>
-       </div>
-    )
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   }
-
 }
 
 CreateProfile.propTypes = {

@@ -12,39 +12,109 @@ const ProfileSchema = new Schema({
     required: true,
     max: 40
   },
-  steamid: {
+  company: {
     type: String
   },
-  interests: {
+  website: {
+    type: String
+  },
+  location: {
+    type: String
+  },
+  status: {
+    type: String,
+    required: true
+  },
+  skills: {
     type: [String],
     required: true
   },
   bio: {
     type: String
   },
-  games: [{
-    title: {
-    type: String,
-    required: true
+  githubusername: {
+    type: String
   },
-  platform: {
-    type: String,
-    required: true
+  experience: [
+    {
+      title: {
+        type: String,
+        required: true
+      },
+      company: {
+        type: String,
+        required: true
+      },
+      location: {
+        type: String
+      },
+      from: {
+        type: Date,
+        required: true
+      },
+      to: {
+        type: Date
+      },
+      current: {
+        type: Boolean,
+        default: false
+      },
+      description: {
+        type: String
+      }
+    }
+  ],
+  education: [
+    {
+      school: {
+        type: String,
+        required: true
+      },
+      degree: {
+        type: String,
+        required: true
+      },
+      fieldofstudy: {
+        type: String,
+        required: true
+      },
+      from: {
+        type: Date,
+        required: true
+      },
+      to: {
+        type: Date
+      },
+      current: {
+        type: Boolean,
+        default: false
+      },
+      description: {
+        type: String
+      }
+    }
+  ],
+  social: {
+    youtube: {
+      type: String
+    },
+    twitter: {
+      type: String
+    },
+    facebook: {
+      type: String
+    },
+    linkedin: {
+      type: String
+    },
+    instagram: {
+      type: String
+    }
+  },
+  date: {
+    type: Date,
+    default: Date.now
   }
-  }],
-  anime: [{
-    title: {
-    type: String,
-    required: true
-  }
-  }],
-  webseries: [],
-  tvseries: [],
-  manga: [],
-  comics: [],
-  books: [],
-  sports: [],
-
 });
 
 module.exports = Profile = mongoose.model('profile', ProfileSchema);

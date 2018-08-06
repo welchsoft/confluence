@@ -5,8 +5,8 @@ const passport = require('passport');
 
 // Load Validation
 const validateProfileInput = require('../../validation/profile');
-const validateGamesInput = require('../../validation/games');
-const validateAnimeInput = require('../../validation/anime');
+const validateExperienceInput = require('../../validation/experience');
+const validateEducationInput = require('../../validation/education');
 
 // Load Profile Model
 const Profile = require('../../models/Profile');
@@ -79,6 +79,28 @@ router.get('/handle/:handle', (req, res) => {
     .catch(err => res.status(404).json(err));
 });
 
+// @route   GET api/profile/user/:user_id
+// @desc    Get profile by user ID
+// @access  Public
+
+router.get('/user/:user_id', (req, res) => {
+  const errors = {};
+
+  Profile.findOne({ user: req.params.user_id })
+    .populate('user', ['name', 'avatar'])
+    .then(profile => {
+      if (!profile) {
+        errors.noprofile = 'There is no profile for this user';
+        res.status(404).json(errors);
+      }
+
+      res.json(profile);
+    })
+    .catch(err =>
+      res.status(404).json({ profile: 'There is no profile for this user' })
+    );
+});
+
 // @route   POST api/profile
 // @desc    Create or edit user profile
 // @access  Private
@@ -98,12 +120,25 @@ router.post(
     const profileFields = {};
     profileFields.user = req.user.id;
     if (req.body.handle) profileFields.handle = req.body.handle;
-    if (req.body.steamid) profileFields.steamid = req.body.steamid;
+    if (req.body.company) profileFields.company = req.body.company;
+    if (req.body.website) profileFields.website = req.body.website;
+    if (req.body.location) profileFields.location = req.body.location;
     if (req.body.bio) profileFields.bio = req.body.bio;
+    if (req.body.status) profileFields.status = req.body.status;
+    if (req.body.githubusername)
+      profileFields.githubusername = req.body.githubusername;
     // Skills - Spilt into array
-    if (typeof req.body.interests !== 'undefined') {
-      profileFields.interests = req.body.interests.split(',');
+    if (typeof req.body.skills !== 'undefined') {
+      profileFields.skills = req.body.skills.split(',');
     }
+
+    // Social
+    profileFields.social = {};
+    if (req.body.youtube) profileFields.social.youtube = req.body.youtube;
+    if (req.body.twitter) profileFields.social.twitter = req.body.twitter;
+    if (req.body.facebook) profileFields.social.facebook = req.body.facebook;
+    if (req.body.linkedin) profileFields.social.linkedin = req.body.linkedin;
+    if (req.body.instagram) profileFields.social.instagram = req.body.instagram;
 
     Profile.findOne({ user: req.user.id }).then(profile => {
       if (profile) {
@@ -131,14 +166,14 @@ router.post(
   }
 );
 
-// @route   POST api/profile/games
-// @desc    Add games to profile
+// @route   POST api/profile/experience
+// @desc    Add experience to profile
 // @access  Private
 router.post(
-  '/games',
+  '/experience',
   passport.authenticate('jwt', { session: false }),
   (req, res) => {
-    const { errors, isValid } = validateGamesInput(req.body);
+    const { errors, isValid } = validateExperienceInput(req.body);
 
     // Check Validation
     if (!isValid) {
@@ -147,27 +182,32 @@ router.post(
     }
 
     Profile.findOne({ user: req.user.id }).then(profile => {
-      const newGame = {
+      const newExp = {
         title: req.body.title,
-        platform: req.body.platform
+        company: req.body.company,
+        location: req.body.location,
+        from: req.body.from,
+        to: req.body.to,
+        current: req.body.current,
+        description: req.body.description
       };
 
       // Add to exp array
-      profile.games.unshift(newGame);
+      profile.experience.unshift(newExp);
 
       profile.save().then(profile => res.json(profile));
     });
   }
 );
 
-// @route   POST api/profile/anime
-// @desc    Add anime to profile
+// @route   POST api/profile/education
+// @desc    Add education to profile
 // @access  Private
 router.post(
-  '/anime',
+  '/education',
   passport.authenticate('jwt', { session: false }),
   (req, res) => {
-    const { errors, isValid } = validateAnimeInput(req.body);
+    const { errors, isValid } = validateEducationInput(req.body);
 
     // Check Validation
     if (!isValid) {
@@ -176,34 +216,40 @@ router.post(
     }
 
     Profile.findOne({ user: req.user.id }).then(profile => {
-      const newAnime = {
-        title: req.body.title
+      const newEdu = {
+        school: req.body.school,
+        degree: req.body.degree,
+        fieldofstudy: req.body.fieldofstudy,
+        from: req.body.from,
+        to: req.body.to,
+        current: req.body.current,
+        description: req.body.description
       };
 
       // Add to exp array
-      profile.anime.unshift(newAnime);
+      profile.education.unshift(newEdu);
 
       profile.save().then(profile => res.json(profile));
     });
   }
 );
 
-// @route   DELETE api/profile/games/:game_id
-// @desc    Delete game from profile
+// @route   DELETE api/profile/experience/:exp_id
+// @desc    Delete experience from profile
 // @access  Private
 router.delete(
-  '/games/:game_id',
+  '/experience/:exp_id',
   passport.authenticate('jwt', { session: false }),
   (req, res) => {
     Profile.findOne({ user: req.user.id })
       .then(profile => {
         // Get remove index
-        const removeIndex = profile.games
+        const removeIndex = profile.experience
           .map(item => item.id)
-          .indexOf(req.params.game_id);
+          .indexOf(req.params.exp_id);
 
         // Splice out of array
-        profile.games.splice(removeIndex, 1);
+        profile.experience.splice(removeIndex, 1);
 
         // Save
         profile.save().then(profile => res.json(profile));
@@ -212,22 +258,22 @@ router.delete(
   }
 );
 
-// @route   DELETE api/profile/anime/:anime_id
-// @desc    Delete anime from profile
+// @route   DELETE api/profile/education/:edu_id
+// @desc    Delete education from profile
 // @access  Private
 router.delete(
-  '/anime/:anime_id',
+  '/education/:edu_id',
   passport.authenticate('jwt', { session: false }),
   (req, res) => {
     Profile.findOne({ user: req.user.id })
       .then(profile => {
         // Get remove index
-        const removeIndex = profile.anime
+        const removeIndex = profile.education
           .map(item => item.id)
-          .indexOf(req.params.anime_id);
+          .indexOf(req.params.edu_id);
 
         // Splice out of array
-        profile.anime.splice(removeIndex, 1);
+        profile.education.splice(removeIndex, 1);
 
         // Save
         profile.save().then(profile => res.json(profile));
@@ -251,5 +297,4 @@ router.delete(
   }
 );
 
-
-module.exports = router
+module.exports = router;
